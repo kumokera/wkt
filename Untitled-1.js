@@ -1,30 +1,30 @@
 //要素内のクリックされた位置を取得するグローバル（のような）変数
-var posOffsetX;
-var posOffsetY;
-var drag = null;
-var cards = [];
-var cardUIs = [];
-var cardWidth = 150;
-var cardHeight = 80;
-var isEditMode = false;
-var mousePosX = 0;
-var mousePosY = 0;
-var currentEditing;
-var modal;
-var modalTitle;
-var modalDescription;
-var currentHover;
-var isInputLocked = false;
-var dragStartX;
-var dragStartY;
-var lastMovementX = 0;
-var lastMovementY = 0;
-var toolTipUI;
-var panelMerginX = 750;
-var panelMerginY = 1000;
-var windowWidth;
-var windowHeight;
-var logStrArray = [];
+let posOffsetX;
+let posOffsetY;
+let drag = null;
+let cards = [];
+let cardUIs = [];
+const cardWidth = 150;
+const cardHeight = 80;
+let isEditMode = false;
+let mousePosX = 0;
+let mousePosY = 0;
+let currentEditing;
+const modal;
+const modalTitle;
+const modalDescription;
+let currentHover;
+let isInputLocked = false;
+let dragStartX;
+let dragStartY;
+let lastMovementX = 0;
+let lastMovementY = 0;
+const toolTipUI;
+const panelMerginX = 750;
+const panelMerginY = 1000;
+let windowWidth;
+let windowHeight;
+let logStrArray = [];
 onStart();
 
 function onStart() {
@@ -108,11 +108,11 @@ function onStart() {
     }
     //マウスの移動時に、dragしている場合、位置を更新
     document.onmousemove = function (oPssevt2) {
-        var omsEvent2 = oPssevt2;
+        const omsEvent2 = oPssevt2;
         mousePosX = omsEvent2.clientX;
         mousePosY = omsEvent2.clientY;
-        var scrollPosX = window.scrollX;
-        var scrollPosY = window.scrollY;
+        const scrollPosX = window.scrollX;
+        const scrollPosY = window.scrollY;
         if (drag != null) {
             drag.style.left = String(omsEvent2.clientX - posOffsetX + scrollPosX) + "px";
             drag.style.top = String(omsEvent2.clientY - posOffsetY + scrollPosY) + "px";
