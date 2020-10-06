@@ -1,0 +1,134 @@
+.drag-and-drop {
+    cursor: move;
+    position: absolute;
+    z-index: 100;
+    width: 150px;
+    height: 80px;
+    border-radius: 10px;
+    border:2px solid rgba(255, 255, 255, 0.226);
+}
+.black-card{
+    background-color: rgba(80, 80, 80, 0.137);
+}
+#tool-tip {
+    padding: 6px;
+    background: #3f3f3f;
+    border: 1px #ffffff solid;
+    border-radius: 5px;
+    z-index: 9999;
+    position: relative;
+    color: white;
+    width: 50%;
+    height: auto;
+    word-wrap: break-word;
+}
+#log{
+    font-family: monospace;
+    background: rgba(255, 93, 93, 0);
+    z-index:-1;
+    top:0;
+    left:0;
+    width:20%;
+    height: 200px;
+    font-size: 10px;
+    color:#ddd;
+    -webkit-line-clamp: 12;
+    -webkit-user-select: none;
+    position: fixed;
+    text-overflow: clip;
+    white-space: pre;
+
+}
+.card-title {
+    height: 25px;
+    margin-top:9px;
+    margin-left:15px;
+    margin-right:15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    font-size: 12px;
+    color: white;
+    font-weight: 800;
+    -webkit-user-select: none;
+}
+
+.card-description{
+    margin-top:4px;
+    margin-left:10px;
+    margin-right:10px;
+    margin-bottom: 9px;
+
+    overflow:hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+    font-weight: 700;
+    color:white;
+    word-wrap:  break-word;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    -webkit-user-select: none;
+    display: -webkit-box;
+}
+
+
+.drag {
+    z-index: 101;
+}
+
+#relative {
+    position: relative;
+    margin: 10px;
+    background-color:rgba(0, 128, 0, 0);
+
+}
+#modal-title{
+background :rgba(0, 0, 0, 0.1);
+color: white;
+font-size: 16px;
+width:100%;
+}
+#modal-description{
+    margin-top:10px;
+    width:100%;
+    height:calc(100% - 50px);
+background :rgba(0, 0, 0, 0.1);
+color: white;
+font-size: 16px;
+}
+
+#modal-content{
+    width:50%;
+    height: 75%;
+    margin:auto;
+padding:10px 20px;
+    border:5px solid #aaa;
+    border-style: double;
+    background:rgba(0, 0, 0, 0.247);
+    z-index:501;
+position: fixed;
+top:12.5%;
+left:25%;
+}
+#modal-overlay{
+    z-index:500;
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    overflow:auto;
+    background-color: rgba(0, 0, 0, 0.349)
+}
+.modal{
+    position: absolute;
+    margin: 10px;
+
+}
+
+body{
+    background-color: rgb(22, 22, 22);
+}
+html{
+
+}
