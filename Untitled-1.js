@@ -156,6 +156,7 @@ function onStart() {
         var files = event.dataTransfer.files;
         readFiles(files)
     });
+
 }
 function readFiles(files) {
     //複数ドロップの場合、最初のファイルを読む
