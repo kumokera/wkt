@@ -25,19 +25,66 @@ const panelMerginY = 1000;
 let windowWidth;
 let windowHeight;
 let logStrArray = [];
+console.log("test");
+var TestClass;
+const scenarioName = "寝台特急プレアデスの悪夢";
 onStart();
 
+function saveToNCMB() {
+    TestClass.equalTo("scenarioName", scenarioName)
+        .order("createDate", true)
+        .fetchAll()
+        .then(function (results) {
+            logAdd("O:NCMBからシナリオを取得");
+            var object = results[0];
+            object.set("cards", JsonFromCards())
+                .update()
+                .then(function (object) {
+                    logAdd("O:NCMBのデータを更新しました");
+                });
+        })
+        .catch(function (err) {
+            logAdd("E:NCMBからシナリオの取得に失敗しました");
+            var newObject = new TestClass();
+            newObject.set("scenarioName", scenarioName)
+                .set("cards", JsonFromCards())
+                .save()
+                .then(function (newObject) {
+                    logAdd("O:NCMBにシナリオを新規保存");
+                })
+                .catch(function (err) {
+                    logAdd("E:NCMBへの新規保存に失敗しました");
+                });
+        });
+}
+function loadFromNCMB() {
+    TestClass.equalTo("scenarioName", scenarioName)
+        .order("createDate", true)
+        .fetchAll()
+        .then(function (results) {
+            logAdd("O:NCMBからシナリオを取得");
+            var object = results[0];
+            readFromString(object.cards);
+            cancelEdit();
+        })
+        .catch(function (err) {
+            logAdd("E:NCMBからシナリオの取得に失敗しました");
+        });
+}
+
 function onStart() {
+    const ncmb = new NCMB("d3a5264ba3539f638997cf8d8bb38e4a12d0bb45284acc309fcf57c94819ea87", "e21485631b01f398f7c322575b6ae2907e2df1248c1bde1305b45f62503842d9");
+    TestClass = ncmb.DataStore("TestClass");
+
     //UI要素の検索
     modal = document.getElementById("modal-overlay");
     modalTitle = document.getElementById("modal-title");
     modalDescription = document.getElementById("modal-description");
     toolTipUI = document.getElementById("tool-tip");
 
-    isEditMode = false;
-    modal.style.display = "none";
     refreshDraggable();
-
+    cancelEdit();
+    loadFromNCMB();
     document.onkeyup = function (keyEvent) {
         var e = keyEvent;
         if (e.key === '.') {
@@ -90,9 +137,14 @@ function onStart() {
             }
             if (e.key === 's' && e.ctrlKey) {
                 e.preventDefault();
-                navigator.clipboard.writeText(JsonFromCards());
-                logAdd("O:クリップボードにJsonを保存");
-                outputTextFile();
+                if (JsonFromCards) {
+                    navigator.clipboard.writeText(JsonFromCards());
+                    //logAdd("O:クリップボードにJsonを保存");
+                    saveToNCMB();
+                    //outputTextFile();
+                } else {
+                    logAdd("JsonError");
+                }
             }
         }
     }
@@ -154,7 +206,7 @@ function onStart() {
         hideDropping();
 
         var files = event.dataTransfer.files;
-        readFiles(files)
+        readFiles(files);
     });
 
 }
