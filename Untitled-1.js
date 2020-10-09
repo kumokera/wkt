@@ -73,8 +73,6 @@ function loadFromNCMB() {
 }
 
 function onStart() {
-    const ncmb = new NCMB("d3a5264ba3539f638997cf8d8bb38e4a12d0bb45284acc309fcf57c94819ea87", "e21485631b01f398f7c322575b6ae2907e2df1248c1bde1305b45f62503842d9");
-    TestClass = ncmb.DataStore("TestClass");
 
     //UI要素の検索
     modal = document.getElementById("modal-overlay");
@@ -84,6 +82,9 @@ function onStart() {
 
     refreshDraggable();
     cancelEdit();
+    const ncmb = new NCMB("d3a5264ba3539f638997cf8d8bb38e4a12d0bb45284acc309fcf57c94819ea87", "e21485631b01f398f7c322575b6ae2907e2df1248c1bde1305b45f62503842d9");
+    TestClass = ncmb.DataStore("TestClass");
+
     loadFromNCMB();
     document.onkeyup = function (keyEvent) {
         var e = keyEvent;
@@ -383,7 +384,7 @@ function cancelEdit() {
 
 function removeCard(e) {
     toolTipUI.style.display = "none";
-    index = cardUIs.indexOf(e);
+    var index = cardUIs.indexOf(e);
     if (index >= 0) {
         cardUIs.splice(index, 1);
         document.body.removeChild(e);
@@ -416,8 +417,8 @@ function toolTipUpdate() {
         //改行を改行タグに置き換える
         str = str.split("\n").join("<br>");
         toolTipUI.innerHTML = str;
-        toolTipWidth = toolTipUI.clientWidth;
-        toolTipHeight = toolTipUI.clientHeight;
+        const toolTipWidth = toolTipUI.clientWidth;
+        const toolTipHeight = toolTipUI.clientHeight;
 
         if (event.pageX + toolTipWidth < windowWidth) {
             toolTipUI.style.left = event.pageX + "px";
