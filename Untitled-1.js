@@ -20,15 +20,43 @@ let dragStartY;
 let lastMovementX = 0;
 let lastMovementY = 0;
 let toolTipUI;
-const panelMerginX = 750;
-const panelMerginY = 1000;
+const panelMarginX = 750;
+const panelMarginY = 1000;
 let windowWidth;
 let windowHeight;
 let logStrArray = [];
 console.log("test");
 var TestClass;
 const scenarioName = "寝台特急プレアデスの悪夢";
+const canvas = document.getElementById('relative');
+
 onStart();
+
+class Card {
+    constructor(left, top, title, description) {
+        // if (typeof left == "string") {
+        //     left = numberFromPx(left);
+        //     console.log("string");
+        // } else {
+        //     console.log("not string");
+
+        // }
+        this.left = left;
+        // if (typeof top == "string") {
+        //     top = numberFromPx(top);
+        // }
+        this.top = top;
+        this.title = title;
+        this.description = description;
+    }
+
+}
+
+const drawLine = () => {
+    if (canvas.getContext) {
+        var context = canvas.getContext('2d');
+    }
+}
 
 function saveToNCMB() {
     TestClass.equalTo("scenarioName", scenarioName)
@@ -44,7 +72,7 @@ function saveToNCMB() {
                 });
         })
         .catch(function (err) {
-            logAdd("E:NCMBからシナリオの取得に失敗しました");
+            logAdd("E:NCMBのデータ更新に失敗しました");
             var newObject = new TestClass();
             newObject.set("scenarioName", scenarioName)
                 .set("cards", JsonFromCards())
@@ -69,29 +97,27 @@ function loadFromNCMB() {
         })
         .catch(function (err) {
             logAdd("E:NCMBからシナリオの取得に失敗しました");
+            logAdd("E:" + err);
         });
 }
 
 function onStart() {
-
     //UI要素の検索
     modal = document.getElementById("modal-overlay");
     modalTitle = document.getElementById("modal-title");
     modalDescription = document.getElementById("modal-description");
     toolTipUI = document.getElementById("tool-tip");
-
     refreshDraggable();
     cancelEdit();
-    const ncmb = new NCMB("d3a5264ba3539f638997cf8d8bb38e4a12d0bb45284acc309fcf57c94819ea87", "e21485631b01f398f7c322575b6ae2907e2df1248c1bde1305b45f62503842d9");
+    var ncmb = new NCMB("d3a5264ba3539f638997cf8d8bb38e4a12d0bb45284acc309fcf57c94819ea87", "e21485631b01f398f7c322575b6ae2907e2df1248c1bde1305b45f62503842d9");
     TestClass = ncmb.DataStore("TestClass");
-
     loadFromNCMB();
     document.onkeyup = function (keyEvent) {
         var e = keyEvent;
         if (e.key === '.') {
             isInputLocked = false;
         }
-    }
+    };
     document.onkeydown = function (keyEvent) {
         var e = keyEvent;
         if (isEditMode) {
@@ -107,8 +133,8 @@ function onStart() {
                     e.preventDefault();
                 }
             }
-
-        } else {
+        }
+        else {
             if (e.key === 'a') {
                 addCard(true);
             }
@@ -127,10 +153,12 @@ function onStart() {
                 if (e.key === 'j') {
                     if (e.shiftKey) {
                         copyAll();
-                    } else {
+                    }
+                    else {
                         if (e.altKey) {
                             copyTitle();
-                        } else {
+                        }
+                        else {
                             copyDescription();
                         }
                     }
@@ -143,13 +171,13 @@ function onStart() {
                     //logAdd("O:クリップボードにJsonを保存");
                     saveToNCMB();
                     //outputTextFile();
-                } else {
+                }
+                else {
                     logAdd("JsonError");
                 }
             }
         }
-    }
-
+    };
     //右クリック
     document.onmousedown = function (e) {
         if (e.button == 2) {
@@ -158,22 +186,22 @@ function onStart() {
                 confirmEdit();
             }
         }
-    }
+    };
     //マウスの移動時に、dragしている場合、位置を更新
     document.onmousemove = function (oPssevt2) {
-        const omsEvent2 = oPssevt2;
+        var omsEvent2 = oPssevt2;
         mousePosX = omsEvent2.clientX;
         mousePosY = omsEvent2.clientY;
-        const scrollPosX = window.scrollX;
-        const scrollPosY = window.scrollY;
+        var scrollPosX = window.scrollX;
+        var scrollPosY = window.scrollY;
         if (drag != null) {
-            drag.style.left = String(omsEvent2.clientX - posOffsetX + scrollPosX) + "px";
-            drag.style.top = String(omsEvent2.clientY - posOffsetY + scrollPosY) + "px";
+            drag.style.left = pxFromNumber(omsEvent2.clientX - posOffsetX + scrollPosX);
+            drag.style.top = pxFromNumber(omsEvent2.clientY - posOffsetY + scrollPosY);
             var index = cardUIs.indexOf(drag);
-            cards[index].top = drag.style.top;
-            cards[index].left = drag.style.left;
+            cards[index].top = numberFromPx(drag.style.top);
+            cards[index].left = numberFromPx(drag.style.left);
         }
-    }
+    };
     //ペーストを使ったデータの保存
     document.addEventListener('paste', function (e) {
         if (!isEditMode) {
@@ -186,7 +214,8 @@ function onStart() {
                 try {
                     readFromString(e.clipboardData.getData('text'));
                     logAdd("O:CBテキストをJsonとして読み込み");
-                } catch (error) {
+                }
+                catch (error) {
                     //parseできない場合の処理
                     logAdd("E:テキストのJson化に失敗");
                 }
@@ -197,7 +226,8 @@ function onStart() {
     //file drag関係
     document.addEventListener('dragover', function (event) {
         event.preventDefault();
-        event.dataTransfer.dropEffect = 'copy'; showDropping();
+        event.dataTransfer.dropEffect = 'copy';
+        showDropping();
     });
     document.addEventListener('dragleave', function (event) {
         hideDropping();
@@ -205,11 +235,9 @@ function onStart() {
     document.addEventListener('drop', function (event) {
         event.preventDefault();
         hideDropping();
-
         var files = event.dataTransfer.files;
         readFiles(files);
     });
-
 }
 function readFiles(files) {
     //複数ドロップの場合、最初のファイルを読む
@@ -220,12 +248,16 @@ function readFiles(files) {
     reader.onload = function (ev) {
         logAdd("O: テキスト読み込み完了");
         readFromString(reader.result);
-    }
+    };
 }
 function showDropping() { }
 function hideDropping() { }
 function readFromString(str) {
     cards = JSON.parse(str);
+    // for (let i = 0, l = subCards.length; i < l; i++) {
+    //     c = subCards[i];
+    //     cards.push(new Card(c.left, c.top, c.title, c.description));
+    // }
     cancelEdit();
 }
 function JsonFromCards() {
@@ -233,15 +265,15 @@ function JsonFromCards() {
     return (jsonString);
 }
 function outputTextFile() {
-    let blob = new Blob([JsonFromCards()], { type: "text/plan" });
-    let link = document.createElement('a');
+    var blob = new Blob([JsonFromCards()], { type: "text/plan" });
+    var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = '寝台特急プレアデスの悪夢.text';
     link.click();
 }
 function saveCardChange(index, title, description) {
     if (title != null) {
-        cards[index].title = title
+        cards[index].title = title;
     }
     if (description != null) {
         cards[index].description = description;
@@ -253,17 +285,17 @@ function resizeCampus() {
     var maxY = 0;
     //最も左上から遠いカードの位置
     for (var i = 0; i < cards.length; i++) {
-        if (maxX < parseInt(cards[i].left.split("px")[0], 10)) {
-            maxX = parseInt(cards[i].left.split("px")[0], 10);
+        if (maxX < cards[i].left) {
+            maxX = cards[i].left;
         }
-        if (maxY < parseInt(cards[i].top.split("px")[0], 10)) {
-            maxY = parseInt(cards[i].top.split("px")[0], 10);
+        if (maxY < cards[i].top) {
+            maxY = cards[i].top;
         }
     }
     if (maxX != 0 && maxY != 0) {
         var panel = document.getElementById("relative");
-        panel.style.width = (maxX + panelMerginX) + "px";
-        panel.style.height = (maxY + panelMerginY) + "px";
+        panel.style.width = pxFromNumber(maxX + panelMarginX);
+        panel.style.height = pxFromNumber(maxY + panelMarginY);
     }
 }
 function copyDescription() {
@@ -285,21 +317,21 @@ function pasteAll(t) {
     saveCardChange(cardUIs.indexOf(currentHover), t.slice(0, i), t.slice(i + 1));
     reloadCards();
 }
-
-function getTitle() {
-    var x = document.getElementById("modal-title").value;
-}
+//function getTitle() {
+//    var x = document.getElementById("modal-title").value;
+// }
 function addCard(enableLog, c) {
     var cardUI = document.createElement("DIV");
     cardUI.classList.add('drag-and-drop');
     cardUI.classList.add('black-card');
     var title = document.createElement("DIV");
     var description = document.createElement("DIV");
-    title.className = 'card-title'
+    title.className = 'card-title';
     description.className = 'card-description';
     cardUI.appendChild(title);
     cardUI.appendChild(description);
     document.body.appendChild(cardUI);
+    console.log("c:" + c.left);
     if (c) {
         if (c.title) {
             title.innerHTML = c.title;
@@ -308,18 +340,16 @@ function addCard(enableLog, c) {
             description.innerHTML = c.description;
         }
         if (c.left && c.top) {
-            cardUI.style.left = Math.max(0, parseInt(c.left.replace("px", ""), 10)) + "px";
-            cardUI.style.top = Math.max(0, parseInt(c.top.replace("px", ""), 10)) + "px";
+            cardUI.style.left = pxFromNumber(Math.max(0, c.left));
+            cardUI.style.top = pxFromNumber(Math.max(0, c.top));
         }
     } else {
-        cards.push(new Card(cardUI.style.left, cardUI.style.top, "", ""));
-        cards.title = "";
-        cards.description = "";
+        cards.push(new Card(numberFromPx(cardUI.style.left), numberFromPx((cardUI.style.top)), "", ""));
         //カードの位置を左・上方向に出ないようClamp
-        cardUI.style.left = Math.max(0, mousePosX - cardWidth / 2) + "px";
-        cardUI.style.top = Math.max(0, mousePosY - cardHeight / 2) + "px";
-        cards[cards.length - 1].left = cardUI.style.left;
-        cards[cards.length - 1].top = cardUI.style.top;
+        cardUI.style.left = pxFromNumber(Math.max(0, mousePosX - cardWidth / 2));
+        cardUI.style.top = pxFromNumber(Math.max(0, mousePosY - cardHeight / 2));
+        cards[cards.length - 1].left = numberFromPx(cardUI.style.left);
+        cards[cards.length - 1].top = numberFromPx(cardUI.style.top);
     }
     cardUIs.push(cardUI);
     refreshDraggable();
@@ -327,6 +357,15 @@ function addCard(enableLog, c) {
         logAdd("O:CardAdded");
     }
 }
+var numberFromPx = function (str) {
+    console.log(str + ":to:" + parseInt(str.replace("px", ""), 10));
+    return parseInt(str.replace("px", ""), 10);
+};
+
+var pxFromNumber = function (num) {
+    console.log(num + ":to:" + String(num) + "px");
+    return (String(num) + "px");
+};
 function reloadCards() {
     for (var i = 0; i < cardUIs.length; i++) {
         document.body.removeChild(cardUIs[i]);
@@ -336,13 +375,12 @@ function reloadCards() {
         addCard(false, cards[i]);
     }
 }
-
 function refreshDraggable() {
     cardUIs = [];
     //要素の取得
     var elements = document.getElementsByClassName("drag-and-drop");
     //マウスが要素内で押されたとき、又はタッチされたとき発火
-    for (var i = 0; i < elements.length; i++) {
+    for (var i = 0, l = elements.length; i < l; i++) {
         elements[i].addEventListener("mousedown", mdown, false);
         elements[i].addEventListener("mouseenter", menter, false);
         elements[i].addEventListener("mouseleave", mleave, false);
@@ -350,7 +388,6 @@ function refreshDraggable() {
     }
     resizeCampus();
 }
-
 //カード編集関係
 function edit(editing) {
     currentEditing = editing;
@@ -375,13 +412,11 @@ function confirmEdit() {
     //currentEditing.children[1].innerHTML = modalDescription.value;
     reloadCards();
 }
-
 function cancelEdit() {
     isEditMode = false;
     modal.style.display = "none";
     reloadCards();
 }
-
 function removeCard(e) {
     toolTipUI.style.display = "none";
     var index = cardUIs.indexOf(e);
@@ -389,13 +424,13 @@ function removeCard(e) {
         cardUIs.splice(index, 1);
         document.body.removeChild(e);
         cards.splice(index, 1);
-        logAdd("O:CardRemoved")
-    } else {
+        logAdd("O:CardRemoved");
+    }
+    else {
         logAdd("E:削除対象のカードがcardUIsに存在しない");
     }
     currentHover = null;
 }
-
 function menter(e) {
     currentHover = this;
     this.addEventListener("mousemove", toolTipUpdate, false);
@@ -405,10 +440,8 @@ function toolTipUpdate() {
         //windowSizeを更新
         windowWidth = document.documentElement.clientWidth;
         windowHeight = document.documentElement.clientHeight;
-
         //toolTipUIを表示
         toolTipUI.style.display = "block";
-
         //html内の改行のため、文字列操作
         var str = cards[cardUIs.indexOf(currentHover)].description;
         //一応タグを使えないように置き換える
@@ -417,27 +450,28 @@ function toolTipUpdate() {
         //改行を改行タグに置き換える
         str = str.split("\n").join("<br>");
         toolTipUI.innerHTML = str;
-        const toolTipWidth = toolTipUI.clientWidth;
-        const toolTipHeight = toolTipUI.clientHeight;
-
-        if (event.pageX + toolTipWidth < windowWidth) {
-            toolTipUI.style.left = event.pageX + "px";
-        } else {
+        var toolTipWidth = toolTipUI.clientWidth;
+        var toolTipHeight = toolTipUI.clientHeight;
+        var e = event;
+        if (e.pageX + toolTipWidth < windowWidth) {
+            toolTipUI.style.left = pxFromNumber(e.pageX);
+        }
+        else {
             //端から出る場合、カーソルの左側にpopさせる
-            toolTipUI.style.left = (event.pageX - toolTipWidth) + "px";
+            toolTipUI.style.left = pxFromNumber(e.pageX - toolTipWidth);
         }
-        if (event.pageY + toolTipHeight < windowHeight) {
-            toolTipUI.style.top = event.pageY + "px";
-        } else {
+        if (e.pageY + toolTipHeight < windowHeight) {
+            toolTipUI.style.top = pxFromNumber(e.pageY);
+        }
+        else {
             //端から出る場合、カーソルの上側にpopさせる
-            toolTipUI.style.top = event.pageY + "px";
-            toolTipUI.style.top = (event.pageY + toolTipHeight) + "px";
+            toolTipUI.style.top = pxFromNumber(e.pageY);
+            toolTipUI.style.top = pxFromNumber(e.pageY + toolTipHeight);
         }
-
-    } else {
+    }
+    else {
         toolTipUI.style.display = "none";
     }
-
 }
 function mleave(e) {
     currentHover = null;
@@ -452,33 +486,30 @@ function mdown(e) {
         this.classList.add("drag");
         //ドラッグしている要素を取得
         drag = document.getElementsByClassName("drag")[0];
-
         //要素内の相対座標を取得
-        posOffsetX = event.pageX - this.offsetLeft;
-        posOffsetY = event.pageY - this.offsetTop;
-        dragStartX = event.pageX;
-        dragStartY = event.pageY;
-
+        var e = event;
+        posOffsetX = e.pageX - this.offsetLeft;
+        posOffsetY = e.pageY - this.offsetTop;
+        dragStartX = e.pageX;
+        dragStartY = e.pageY;
         //ムーブイベントにコールバック
         drag.addEventListener("mouseup", mup, false);
     }
 }
-
 //マウスボタンが上がったら発火
 function mup(e) {
     //ムーブベントハンドラの消去
     //document.body.removeEventListener("mousemove", mmove, false);
     drag.removeEventListener("mouseup", mup, false);
-
     //クラス名 .drag も消す
     drag.classList.remove("drag");
     drag = null;
-    if (dragStartX === event.pageX && dragStartY === event.pageY) {
+    var e = event;
+    if (dragStartX === e.pageX && dragStartY === e.pageY) {
         edit(currentHover);
     }
     resizeCampus();
 }
-
 function logAdd(str) {
     if (logStrArray.length > 12) {
         logStrArray.shift();
@@ -488,31 +519,21 @@ function logAdd(str) {
     var hours = date.getHours();
     var minutes = date.getMinutes();
     var seconds = date.getSeconds();
-    if (parseInt(hours, 10) < 10) {
-        hours = "0" + hours;
+    if (hours < 10) {
+        logStr += "0";
     }
-    if (parseInt(minutes, 10) < 10) {
-        minutes = "0" + minutes;
+    logStr += hours + ":";
+    if (minutes < 10) {
+        logStr += "0";
     }
-    if (parseInt(seconds, 10) < 10) {
-        seconds = "0" + seconds;
+    logStr += minutes + ":";
+    if (seconds < 10) {
+        logStr += "0";
     }
-    logStr += hours + ":" + minutes + ":" + seconds;
+    logStr += seconds;
     logStr += "　" + str;
     logStr += "<br>";
     logStrArray.push(logStr);
     var logUI = document.getElementById("log");
     logUI.innerHTML = logStrArray.join("");
-}
-
-
-//カードデータ保持用クラス
-class Card {
-    constructor(left, top, title, description) {
-        this.left = left;
-        this.top = top;
-        this.title = title;
-        this.description = description;
-        //this.index = index;
-    }
 }
